@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venezuela's Economic Decline (2000-2024)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: rgba(30, 41, 59, 0.8);
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid rgba(71, 85, 105, 0.4);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        
+        h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #94a3b8;
+            line-height: 1.7;
+            margin-bottom: 40px;
+        }
+        
+        .chart-container {
+            background-color: rgba(15, 23, 42, 0.6);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+        
+        canvas {
+            max-height: 500px;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            background-color: #38bdf8;
+            color: #0f172a;
+            border: 2px solid #38bdf8;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        button:hover {
+            background-color: #0ea5e9;
+            transform: translateY(-2px);
+        }
+        
+        button.inactive {
+            background-color: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            border-radius: 12px;
+            padding: 24px;
+        }
+        
+        .stat-card.blue {
+            background-color: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid #38bdf8;
+        }
+        
+        .stat-card.yellow {
+            background-color: rgba(251, 191, 36, 0.1);
+            border-left: 4px solid #fbbf24;
+        }
+        
+        .stat-card.red {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #dc2626;
+        }
+        
+        .stat-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .stat-card.blue h3 { color: #38bdf8; }
+        .stat-card.yellow h3 { color: #fbbf24; }
+        .stat-card.red h3 { color: #dc2626; }
+        
+        .stat-card p {
+            font-size: 16px;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        
+        .explanation-box {
+            background-color: rgba(100, 116, 139, 0.2);
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+        
+        .explanation-box h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .explanation-box p {
+            font-size: 16px;
+            color: #cbd5e1;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        
+        .factor-list {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .factor-item {
+            padding: 16px;
+            background-color: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+            border-left: 3px solid;
+        }
+        
+        .factor-item.gray { border-left-color: #64748b; }
+        .factor-item.red { border-left-color: #dc2626; }
+        .factor-item.orange { border-left-color: #ea580c; }
+        .factor-item.purple { border-left-color: #7c3aed; }
+        
+        .factor-item strong {
+            font-size: 15px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .factor-item.gray strong { color: #94a3b8; }
+        .factor-item.red strong { color: #f87171; }
+        .factor-item.orange strong { color: #fb923c; }
+        .factor-item.purple strong { color: #a78bfa; }
+        
+        .factor-item span {
+            font-size: 15px;
+            color: #cbd5e1;
+        }
+        
+        .note {
+            font-size: 15px;
+            color: #94a3b8;
+            line-height: 1.8;
+            font-style: italic;
+            padding: 16px;
+            background-color: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+        }
+        
+        .note strong {
+            color: #cbd5e1;
+        }
+        
+        .footer {
+            margin-top: 32px;
+            padding: 20px;
+            background-color: rgba(15, 23, 42, 0.4);
+            border-radius: 12px;
+            font-size: 13px;
+            color: #64748b;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Venezuela's Economic Decline (2000-2024)</h1>
+        <p class="subtitle">
+            Venezuela's GDP collapsed from a peak of $393B in 2010 to $43.8B in 2020—an 89% decline. 
+            This chart shows GDP alongside oil prices and key events, including US sanctions that began in 2017.
+        </p>
+        
+        <div class="chart-container">
+            <canvas id="economicChart"></canvas>
+        </div>
+        
+        <div class="controls">
+            <button id="toggleAnnotations" onclick="toggleAnnotations()">Hide Event Markers</button>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card blue">
+                <h3>Peak to Trough</h3>
+                <p>
+                    GDP fell from <strong style="color: #f1f5f9;">$393.8B (2010)</strong> to 
+                    <strong style="color: #f1f5f9;">$43.8B (2020)</strong>—an 
+                    <strong style="color: #ef4444;">89% collapse</strong> over a decade.
+                </p>
+            </div>
+            
+            <div class="stat-card yellow">
+                <h3>Oil Price Collapse</h3>
+                <p>
+                    Oil prices crashed from <strong style="color: #f1f5f9;">$112/barrel (2012)</strong> to 
+                    <strong style="color: #f1f5f9;">$43/barrel (2016)</strong>, devastating Venezuela's 
+                    oil-dependent economy.
+                </p>
+            </div>
+            
+            <div class="stat-card red">
+                <h3>US Sanctions Timeline</h3>
+                <p>
+                    Financial sanctions began in <strong style="color: #f1f5f9;">2017</strong>, followed by 
+                    oil sector sanctions in <strong style="color: #f1f5f9;">January 2019</strong>, significantly 
+                    restricting Venezuela's ability to export oil.
+                </p>
+            </div>
+        </div>
+        
+        <div class="explanation-box">
+            <h2>Understanding the Causes</h2>
+            
+            <p>
+                Venezuela's economic collapse is the result of <strong>multiple interconnected factors</strong>. 
+                Economists debate the relative impact of each cause:
+            </p>
+            
+            <div class="factor-list">
+                <div class="factor-item gray">
+                    <strong>📉 Economic decline began before major sanctions:</strong>
+                    <span>GDP fell 24% from 2013-2016, before the 2017 financial sanctions.</span>
+                </div>
+                
+                <div class="factor-item red">
+                    <strong>🛢️ Oil price collapse (2014):</strong>
+                    <span>Venezuela's economy relies heavily on oil exports. Prices dropped from $112 to $43/barrel (2012-2016).</span>
+                </div>
+                
+                <div class="factor-item orange">
+                    <strong>🚫 US sanctions (2017-2019):</strong>
+                    <span>Financial sanctions (2017) and oil sector sanctions (Jan 2019) restricted Venezuela's access to credit and oil markets. Studies estimate sanctions caused losses of $77M/day from 2017-2024.</span>
+                </div>
+                
+                <div class="factor-item purple">
+                    <strong>⚙️ Government policies & mismanagement:</strong>
+                    <span>Price controls, currency controls, nationalization of industries, and lack of investment in oil infrastructure contributed to production collapse (from 2.4M to 0.7M barrels/day).</span>
+                </div>
+                
+                <div class="factor-item gray">
+                    <strong>📊 Hyperinflation:</strong>
+                    <span>Annual inflation reached 344,510% in 2019, destroying purchasing power and savings.</span>
+                </div>
+            </div>
+            
+            <p class="note">
+                <strong>Note:</strong> Research sources vary on the specific impact of each factor. Some studies 
+                attribute significant losses to US sanctions, while others emphasize government mismanagement and 
+                the oil price collapse as primary drivers. A 2021 US Government Accountability Office report found 
+                that "U.S. sanctions have had a negative impact on the already declining Venezuelan economy, although 
+                it is difficult to isolate the effect of sanctions from other relevant factors."
+            </p>
+        </div>
+        
+        <div class="footer">
+            Data compiled from World Bank, IMF, FRED, and academic sources (2000-2024)
+        </div>
+    </div>
+    
+    <script>
+        // Data
+        const years = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
+        const gdpData = [117.1, 123.6, 92.9, 84.0, 112.5, 145.5, 184.0, 230.4, 314.2, 329.4, 393.8, 316.5, 372.6, 371.3, 371.3, 339.7, 287.0, 210.1, 143.0, 70.1, 43.8, 111.8, 97.7, 92.2, 102.3];
+        const oilData = [28, 24, 26, 28, 38, 54, 65, 73, 97, 61, 79, 111, 112, 108, 98, 52, 43, 54, 71, 64, 42, 71, 97, 83, 80];
+        
+        const keyEvents = [
+            { year: 2013, label: "Maduro takes power", color: "#64748b" },
+            { year: 2014, label: "Oil prices crash", color: "#dc2626" },
+            { year: 2015, label: "First US sanctions", color: "#f97316" },
+            { year: 2017, label: "Financial sanctions", color: "#ea580c" },
+            { year: 2019, label: "Oil sector sanctions", color: "#c2410c" },
+            { year: 2022, label: "Partial relief", color: "#16a34a" },
+            { year: 2024, label: "Sanctions reimposed", color: "#dc2626" }
+        ];
+        
+        let showAnnotations = true;
+        
+        // Create annotations
+        function createAnnotations() {
+            if (!showAnnotations) return {};
+            
+            const annotations = {};
+            keyEvents.forEach((event, idx) => {
+                const yearIndex = years.indexOf(event.year);
+                if (yearIndex !== -1) {
+                    annotations[`line${idx}`] = {
+                        type: 'line',
+                        xMin: yearIndex,
+                        xMax: yearIndex,
+                        borderColor: event.color,
+                        borderWidth: 2,
+                        borderDash: [6, 6],
+                        label: {
+                            display: true,
+                            content: event.label,
+                            position: 'start',
+                            backgroundColor: event.color,
+                            color: '#fff',
+                            font: {
+                                size: 11,
+                                weight: 'bold'
+                            },
+                            padding: 4,
+                            rotation: -45
+                        }
+                    };
+                }
+            });
+            return annotations;
+        }
+        
+        // Chart configuration
+        const ctx = document.getElementById('economicChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: years,
+                datasets: [
+                    {
+                        label: 'GDP (Billion USD)',
+                        data: gdpData,
+                        borderColor: '#38bdf8',
+                        backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                        fill: true,
+                        yAxisID: 'y',
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#38bdf8',
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'Oil Price ($/barrel)',
+                        data: oilData,
+                        borderColor: '#fbbf24',
+                        backgroundColor: 'transparent',
+                        fill: false,
+                        yAxisID: 'y1',
+                        tension: 0.4,
+                        borderWidth: 3,
+                        borderDash: [5, 5],
+                        pointRadius: 4,
+                        pointBackgroundColor: '#fbbf24',
+                        pointHoverRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            color: '#cbd5e1',
+                            font: {
+                                size: 14,
+                                weight: '600'
+                            },
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        titleColor: '#f1f5f9',
+                        bodyColor: '#cbd5e1',
+                        borderColor: '#334155',
+                        borderWidth: 1,
+                        padding: 16,
+                        titleFont: {
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 14
+                        },
+                        callbacks: {
+                            afterBody: function(context) {
+                                const yearIndex = context[0].dataIndex;
+                                const year = years[yearIndex];
+                                const events = keyEvents.filter(e => e.year === year);
+                                if (events.length > 0) {
+                                    return '\n' + events.map(e => '• ' + e.label).join('\n');
+                                }
+                                return '';
+                            }
+                        }
+                    },
+                    annotation: {
+                        annotations: createAnnotations()
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(51, 65, 85, 0.3)'
+                        },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            },
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        grid: {
+                            color: 'rgba(51, 65, 85, 0.3)'
+                        },
+                        ticks: {
+                            color: '#38bdf8',
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            },
+                            callback: function(value) {
+                                return '$' + value + 'B';
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'GDP (Billion USD)',
+                            color: '#38bdf8',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false
+                        },
+                        ticks: {
+                            color: '#fbbf24',
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            },
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Oil Price ($/barrel)',
+                            color: '#fbbf24',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            },
+            plugins: [{
+                id: 'customAnnotations',
+                afterDatasetsDraw: function(chart) {
+                    if (!showAnnotations) return;
+                    
+                    const ctx = chart.ctx;
+                    const xAxis = chart.scales.x;
+                    const yAxis = chart.scales.y;
+                    
+                    keyEvents.forEach(event => {
+                        const yearIndex = years.indexOf(event.year);
+                        if (yearIndex === -1) return;
+                        
+                        const x = xAxis.getPixelForValue(yearIndex);
+                        
+                        ctx.save();
+                        ctx.strokeStyle = event.color;
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([6, 6]);
+                        ctx.beginPath();
+                        ctx.moveTo(x, yAxis.top);
+                        ctx.lineTo(x, yAxis.bottom);
+                        ctx.stroke();
+                        ctx.restore();
+                    });
+                }
+            }]
+        });
+        
+        function toggleAnnotations() {
+            showAnnotations = !showAnnotations;
+            const button = document.getElementById('toggleAnnotations');
+            
+            if (showAnnotations) {
+                button.textContent = 'Hide Event Markers';
+                button.classList.remove('inactive');
+            } else {
+                button.textContent = 'Show Event Markers';
+                button.classList.add('inactive');
+            }
+            
+            chart.options.plugins.annotation.annotations = createAnnotations();
+            chart.update();
+        }
+    </script>
+</body>
+</html>
